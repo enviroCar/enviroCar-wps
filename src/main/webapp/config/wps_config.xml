@@ -249,6 +249,10 @@
 				<Format mimetype="application/x-jsongeometry" encoding="UTF-8" />
 			</Generator>
 			
+			<Generator name="GeoJSONGenerator" className="org.n52.wps.io.datahandler.generator.GeoJSONGenerator" active="true">
+        		<Format mimetype="application/json"/>
+			</Generator>
+			
 			<Generator name="GML3BasicGenerator"
 				className="org.n52.wps.io.datahandler.generator.GML3BasicGenerator"
 				active="true">
@@ -481,7 +485,9 @@
 	<AlgorithmRepositoryList>
 		<Repository name="LocalAlgorithmRepository"
 			className="org.n52.wps.server.LocalAlgorithmRepository" active="true">
+			<!-- ADD YOUR ENVIROCAR WPS PROCESSES HERE!! -->
 			<Property name="Algorithm" active="true">org.envirocar.wps.DataTransformProcess</Property>
+			<Property name="Algorithm" active="true">org.envirocar.wps.Stops4POIProcess</Property>
 		</Repository>
 
 		<Repository name="ServiceLoaderAlgorithmRepository"
@@ -492,7 +498,7 @@
 	<RemoteRepositoryList />
 	<Server hostname="localhost" hostport="8080"
 		includeDataInputsInResponse="false" computationTimeoutMilliSeconds="5"
-		cacheCapabilites="false" webappPath="wps" repoReloadInterval="0">
+		cacheCapabilites="false" webappPath="envirocar-wps" repoReloadInterval="0">
 		<!-- Setting to 'true' will enable filtering of responses documents.  Any server URL in
              the response document will be replaced with the server URL used in the HTTP request. --> 
         <Property name="responseURLFilterEnabled" active="true">false</Property>
