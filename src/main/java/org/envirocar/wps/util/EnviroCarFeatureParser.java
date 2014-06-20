@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.envirocar.wps.util.EnviroCarWpsConstants.FeatureProperties;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.NameImpl;
@@ -66,6 +65,18 @@ public class EnviroCarFeatureParser {
 	  private static Logger LOGGER = LoggerFactory.getLogger(EnviroCarFeatureParser.class);
 
 	  private SimpleFeatureTypeBuilder typeBuilder;
+	  
+	  /**
+	   * constants for feature properties
+	   * 
+	   * @author staschc
+	   *
+	   */
+	  public abstract class FeatureProperties{
+		  public static final String GEOMETRY = "geometry";
+		  public static final String ID = "id";
+		  public static final String TIME = "time";
+	  }
 	  
 	  public EnviroCarFeatureParser(){
 		  
