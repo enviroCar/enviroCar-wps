@@ -1,0 +1,1 @@
+http://localhost:8080/envirocar-wps/WebProcessingService?Service=WPS&Request=Execute&Version=1.0.0&Identifier=org.envirocar.wps.Stops4POIProcess&DataInputs=pointOfInterest=POINT%2851.96517%207.60162%29@mimeType=application/wkt;maxSpeed=5;bufferSize=50&RawDataOutput=result@mimeType=application/json
