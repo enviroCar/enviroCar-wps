@@ -6,11 +6,20 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>envirocar-wps</name>
+	
 	<properties>
 		<wps.version>3.3.0-SNAPSHOT</wps.version>
 		<geotools.version>8.7</geotools.version>
 		<jackson.version>2.1.4</jackson.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	
+	<licenses>
+			<license>
+				<name>GNU GENERAL PUBLIC LICENSE Version 2, June 1991</name>
+				<url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
+			</license>
+	</licenses>
 	
 	<dependencies>
 		<dependency>
@@ -100,6 +109,28 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.jasig.maven</groupId>
+				<artifactId>maven-notice-plugin</artifactId>
+				<version>1.0.6</version>
+				<configuration>
+					<noticeTemplate>misc/NOTICE.template</noticeTemplate>
+					<licenseMapping>
+						<param>http://52north.github.io/cdn/licenses/license-mappings.xml</param>
+					</licenseMapping>
+					<generateChildNotices>false</generateChildNotices>
+				</configuration>
+				<executions>
+					<execution>
+						<id>check-license</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	
@@ -129,6 +160,5 @@
 			<url>http://repo.opengeo.org</url>
 		</repository>
 	</repositories>
-
 
 </project>
