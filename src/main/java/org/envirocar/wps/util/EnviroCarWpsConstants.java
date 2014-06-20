@@ -33,5 +33,20 @@ package org.envirocar.wps.util;
  *
  */
 public class EnviroCarWpsConstants {
+	
+	 //basic server URL; TODO define in config file
 	 public static final String ENV_SERVER_URL = "https://envirocar.org/api/stable";
+	 
+	 /**
+	  * encapsulates the names feature properties
+	  * 
+	  * @author staschc
+	  *
+	  */
+	 public abstract class FeatureProperties{
+		 public static final String GEOMETRY = "geometry";
+		 public static final String ID = "id";
+		 public static final String SPEED = "Speed (km/h)";
+		 public static final String TIME = "time";
+	 }
 }
