@@ -33,7 +33,7 @@ import java.util.UUID;
 
 import org.envirocar.wps.util.EnviroCarFeatureParser;
 import org.envirocar.wps.util.EnviroCarWpsConstants;
-import org.envirocar.wps.util.EnviroCarFeatureParser.FeatureProperties;
+import org.envirocar.wps.util.EnviroCarWpsConstants.FeatureProperties;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
