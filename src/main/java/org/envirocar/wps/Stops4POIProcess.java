@@ -70,6 +70,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -87,8 +88,6 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
    
     private static final int EPSG_CODE_GPS = 4326;
     private static final int EPSG_CODE_GK3 = 31467;
-
-	private SimpleFeatureTypeBuilder typeBuilder;
 
 	/**
 	 * constructor
@@ -123,13 +122,13 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
     }
 	
     @Execute
-	public void getStops4TrafficLight() throws Exception {
-    	this. result = getStops4PointOfInterest(this.pointOfInterest,this.bufferSize,this.maxSpeed);
+	public void getStops4TrafficLights() throws Exception {
+    	this.result = getStops4PointOfInterests(this.pointOfInterest,this.bufferSize,this.maxSpeed);
 	}	
     
     
     /**
-     * computes stops at point 
+     * computes stops at one or more points
      * 
      * @param tlPoint
      * @param bufferSizeP
@@ -137,7 +136,56 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
      * @return
      * @throws Exception
      */
-    public FeatureCollection getStops4PointOfInterest(Geometry tlPoint, double bufferSizeP, double maxSpeedP) throws Exception{
+    public SimpleFeatureCollection getStops4PointOfInterests(Geometry tlPoint, double bufferSizeP, double maxSpeedP) throws Exception{
+    	
+		//set up feature type for features that are returned
+		String uuid = UUID.randomUUID().toString().substring(0, 5);
+		String namespace = "http://www.52north.org/" + uuid;
+		SimpleFeatureType sft = null;
+		SimpleFeatureBuilder sfb = null;
+		SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
+		typeBuilder.setCRS(CRS.decode("EPSG:" + EPSG_CODE_GPS));
+		typeBuilder.setNamespaceURI(namespace);
+		Name nameType = new NameImpl(namespace, "Feature-" + uuid);
+		typeBuilder.setName(nameType);
+		typeBuilder.add("geometry", Point.class);
+		typeBuilder.add("id", String.class);
+		typeBuilder.add("totalNumberOfStops", String.class);
+		typeBuilder.add("percentageOfStops", String.class);
+		typeBuilder.add("totalNumberOfTracks", String.class);
+		sft = typeBuilder.buildFeatureType();
+		sfb = new SimpleFeatureBuilder(sft);
+		
+		//create feature collection that is returned
+		List<SimpleFeature> simpleFeatureList = new ArrayList<SimpleFeature>();
+		
+		if(tlPoint instanceof Point){		
+    	    Point inputPoint = (Point)tlPoint;
+    	    LOGGER.debug("Computing stops for point ("+inputPoint.getX()+", "+inputPoint.getY()+") with buffer size "+bufferSizeP+" m and max speed value "+ maxSpeedP);
+    	    simpleFeatureList.add(getStops4PointOfInterest(inputPoint, bufferSizeP, maxSpeedP, sfb));    	
+		}else if(tlPoint instanceof MultiPoint){
+			
+			MultiPoint inputPoints = (MultiPoint)tlPoint;
+			
+			for (int i = 0; i < inputPoints.getNumGeometries(); i++) {			
+				Point inputPoint = (Point) inputPoints.getGeometryN(i);				
+	    	    LOGGER.debug("Computing stops for point ("+inputPoint.getX()+", "+inputPoint.getY()+") with buffer size "+bufferSizeP+" m and max speed value "+ maxSpeedP);
+	    	    simpleFeatureList.add(getStops4PointOfInterest(inputPoint, bufferSizeP, maxSpeedP, sfb));
+			}			
+		}			
+		return new ListFeatureCollection(sft, simpleFeatureList);
+    }
+    
+    /**
+     * computes stops at a point
+     * 
+     * @param tlPoint
+     * @param bufferSizeP
+     * @param maxSpeedP
+     * @return
+     * @throws Exception
+     */
+    public SimpleFeature getStops4PointOfInterest(Geometry tlPoint, double bufferSizeP, double maxSpeedP, SimpleFeatureBuilder sfb) throws Exception{
     	
     	Point inputPoint = (Point)tlPoint;
     	LOGGER.debug("Computing stops for point ("+inputPoint.getX()+", "+inputPoint.getY()+") with buffer size "+bufferSizeP+" m and max speed value "+ maxSpeedP);
@@ -216,26 +264,8 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
 		//compute percentage of stops
 		percentage = ((double) numberOfStops)/((double)numberOfTracks)*100;
 		
-		//set up feature type for feature that is returned
-		String uuid = UUID.randomUUID().toString().substring(0, 5);
-		String namespace = "http://www.52north.org/" + uuid;
-		SimpleFeatureType sft = null;
-		SimpleFeatureBuilder sfb = null;
-		SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-		typeBuilder.setCRS(CRS.decode("EPSG:4326"));
-		typeBuilder.setNamespaceURI(namespace);
-		Name nameType = new NameImpl(namespace, "Feature-" + uuid);
-		typeBuilder.setName(nameType);
 		String featID = "feature-"+UUID.randomUUID().toString().substring(0, 5);
-		typeBuilder.add("geometry", Point.class);
-		typeBuilder.add("id", String.class);
-		typeBuilder.add("totalNumberOfStops", String.class);
-		typeBuilder.add("percentageOfStops", String.class);
-		typeBuilder.add("totalNumberOfTracks", String.class);
-		sft = typeBuilder.buildFeatureType();
-		sfb = new SimpleFeatureBuilder(sft);
-		
-		
+				
 		//set feature properties
 		sfb.set("geometry",tlPoint);
 		sfb.set("id", featID);
@@ -243,13 +273,9 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
 		sfb.set("percentageOfStops", percentage);
 		sfb.set("totalNumberOfTracks", numberOfTracks);
 		LOGGER.debug("Number of stops: " + numberOfStops + "; total number of tracks: "+ numberOfTracks + "; percentage: "+ percentage);
-		
-		//create feature collection that is returned
-		List<SimpleFeature> simpleFeatureList = new ArrayList<SimpleFeature>();
-		simpleFeatureList.add(sfb.buildFeature(featID));		
-		return new ListFeatureCollection(sft, simpleFeatureList);
+
+		return sfb.buildFeature(featID);
     }
-    
     
     /**
      * helper method for projecting from WGS84 to Gauss-Krueger-3 projection

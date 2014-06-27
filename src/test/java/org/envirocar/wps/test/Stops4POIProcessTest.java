@@ -59,7 +59,7 @@ public class Stops4POIProcessTest {
 	@Test
 	public void test() {
 		try {
-			FeatureCollection result = new Stops4POIProcess().getStops4PointOfInterest(this.tlPoint, bufferSize, maxSpeed);
+			FeatureCollection result = new Stops4POIProcess().getStops4PointOfInterests(this.tlPoint, bufferSize, maxSpeed);
 //			TODO outcommented due to different WPS configuration of order of coordinates
 //			assertEquals(result.size(),1);
 //			FeatureIterator featIter = result.features();
