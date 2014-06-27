@@ -244,7 +244,7 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
 							double speed;
 							if (feat.getAttribute("Speed (km/h)")!=null){
 								speed = Double.parseDouble((String)feat.getAttribute("Speed (km/h)"));
-								if (speed<5){
+								if (speed<maxSpeedP){
 									numberOfStops++;
 									break; //TODO currently, if one stop is contained, the loop breaks!
 								}
