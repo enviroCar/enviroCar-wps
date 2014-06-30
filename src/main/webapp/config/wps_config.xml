@@ -486,7 +486,7 @@
 		<Repository name="LocalAlgorithmRepository"
 			className="org.n52.wps.server.LocalAlgorithmRepository" active="true">
 			<!-- ADD YOUR ENVIROCAR WPS PROCESSES HERE!! -->
-			<Property name="Algorithm" active="true">org.envirocar.wps.DataTransformProcess</Property>
+			<Property name="Algorithm" active="true">org.envirocar.wps.Acceleration4TrackProcess</Property>
 			<Property name="Algorithm" active="true">org.envirocar.wps.Stops4POIProcess</Property>
 		</Repository>
 
