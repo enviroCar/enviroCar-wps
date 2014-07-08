@@ -92,7 +92,7 @@ public class Statistics4TrackProcess {
 	     */
 		public String getStatistics4Track(String trackID2) throws Exception {
 			String result = "";
-			URL url = new URL(EnviroCarWpsConstants.ENV_SERVER_URL+"/tracks/"+this.trackID);
+			URL url = new URL(EnviroCarWpsConstants.ENV_SERVER_URL+"/tracks/"+trackID2);
 			EnviroCarFeatureParser parser = new EnviroCarFeatureParser();
 			SimpleFeatureCollection features = parser.createFeaturesFromJSON(url);
 			SimpleFeatureIterator featIter = features.features();
