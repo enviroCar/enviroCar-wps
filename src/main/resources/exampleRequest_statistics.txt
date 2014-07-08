@@ -1,0 +1,1 @@
+http://localhost:8080/envirocar-wps/WebProcessingService?Service=WPS&Request=Execute&Version=1.0.0&Identifier=org.envirocar.wps.Statistics4TrackProcess&DataInputs=trackID=53b2cd6ae4b01607fa54417c&RawDataOutput=statistics
