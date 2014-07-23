@@ -150,9 +150,9 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
 		typeBuilder.setName(nameType);
 		typeBuilder.add("geometry", Point.class);
 		typeBuilder.add("id", String.class);
-		typeBuilder.add("totalNumberOfStops", String.class);
-		typeBuilder.add("percentageOfStops", String.class);
-		typeBuilder.add("totalNumberOfTracks", String.class);
+		typeBuilder.add("totalNumberOfStops", Integer.class);
+		typeBuilder.add("percentageOfStops", Double.class);
+		typeBuilder.add("totalNumberOfTracks", Integer.class);
 		sft = typeBuilder.buildFeatureType();
 		sfb = new SimpleFeatureBuilder(sft);
 		
