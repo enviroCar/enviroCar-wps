@@ -33,6 +33,7 @@
 	</appender>
 	
 	<logger name="org.envirocar.wps.test" level="DEBUG" />
+	<logger name="org.envirocar.wps" level="DEBUG" />
 	<logger name="org.n52.wps.server.WebProcessingService" level="DEBUG" />
 	<logger name="org.n52.wps.server.R" level="DEBUG" />
 	<logger name="org.n52.wps.io.datahandler.parser.GeotiffParser" level="DEBUG" />

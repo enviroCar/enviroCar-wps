@@ -198,10 +198,10 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
     	//re-transform to WGS84 coordinates for BBOX filter in query of tracks from Envirocar server
     	Geometry envelope = transformToWGS(buffer.getEnvelope());
     	Coordinate[] coords = envelope.getCoordinates();
-    	double minx = coords[0].y;
-    	double maxx = coords[2].y;
-    	double miny = coords[0].x;
-    	double maxy = coords[2].x;
+    	double minx = coords[0].x;
+    	double maxx = coords[2].x;
+    	double miny = coords[0].y;
+    	double maxy = coords[2].y;
     	
     	//query tracks from EnviroCar server
     	String bboxQuery = "?bbox="+minx+","+miny+","+maxx+","+maxy;
@@ -218,9 +218,10 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
 		
 		//create spatial filter for checking whether measurements of tracks are within buffer around POI
 		FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
-		Coordinate[] coordsFlipped = flipCoordinates(envelope.getCoordinates());
+//		Coordinate[] coordsFlipped = flipCoordinates(envelope.getCoordinates());
 		GeometryFactory geomFac = new GeometryFactory();
-		Polygon bufferFlipped = geomFac.createPolygon(geomFac.createLinearRing(coordsFlipped),null);
+//		Polygon bufferFlipped = geomFac.createPolygon(geomFac.createLinearRing(coordsFlipped),null);
+		Polygon bufferFlipped = geomFac.createPolygon(geomFac.createLinearRing(envelope.getCoordinates()),null);
 		Filter filter = ff.within(ff.property(FeatureProperties.GEOMETRY),ff.literal(bufferFlipped));
 		
 		//iterate over track IDs
@@ -267,6 +268,7 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
 		String featID = "feature-"+UUID.randomUUID().toString().substring(0, 5);
 				
 		//set feature properties
+//		sfb.set("geometry",flipPoint((Point) tlPoint));
 		sfb.set("geometry",tlPoint);
 		sfb.set("id", featID);
 		sfb.set("totalNumberOfStops", numberOfStops);
@@ -289,7 +291,8 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
      */
     private static Geometry projectToGK3(Geometry geom) throws Exception{
     	Geometry result = null;
-    	Coordinate[] coordsNew = flipCoordinates(geom.getCoordinates());
+    	Coordinate[] coordsNew = geom.getCoordinates();
+//    	Coordinate[] coordsNew = flipCoordinates(geom.getCoordinates());
     	if (geom instanceof Point && coordsNew.length==1){
     		geom = new GeometryFactory().createPoint(coordsNew[0]);
     	}
@@ -318,19 +321,37 @@ public class Stops4POIProcess extends AbstractAnnotatedAlgorithm {
     	result = JTS.transform(geom,trans);
     	if (result instanceof Polygon){
     		Polygon poly = (Polygon)result;
-    		Coordinate[] coords = flipCoordinates(poly.getExteriorRing().getCoordinates());
+    		Coordinate[] coords = poly.getExteriorRing().getCoordinates();
+//    		Coordinate[] coords = flipCoordinates(poly.getExteriorRing().getCoordinates());
     		GeometryFactory geomFactory = new GeometryFactory();
     		result  = geomFactory.createPolygon(geomFactory.createLinearRing(coords),null);
     	}
     	return result;
     }
-    
-    private static Coordinate[] flipCoordinates(Coordinate[] coords){
-    	Coordinate[] coordsNew = new Coordinate[coords.length];
-    	for (int i = 0; i<coords.length; i++){
-    		coordsNew[i]=new Coordinate(coords[i].y,coords[i].x);
-    	}
-    	return coordsNew;
-    }
+
+    //TODO remove
+//    private static Coordinate[] flipCoordinates(Coordinate[] coords){
+//    	Coordinate[] coordsNew = new Coordinate[coords.length];
+//    	for (int i = 0; i<coords.length; i++){
+//    		coordsNew[i]=new Coordinate(coords[i].y,coords[i].x);
+//    	}
+//    	return coordsNew;
+//    }
+//    
+//    private static Point flipPoint(Point point){
+//    	
+//    	GeometryFactory geomFactory = new GeometryFactory();
+//    	
+//    	Coordinate[] coords = point.getCoordinates();
+//    	
+//    	Coordinate[] coordsNew = new Coordinate[coords.length];
+//    	for (int i = 0; i<coords.length; i++){
+//    		coordsNew[i]=new Coordinate(coords[i].y,coords[i].x);
+//    	}
+//    	
+//    	Point flippedPoint = geomFactory.createPoint(coordsNew[0]);
+//    	
+//    	return flippedPoint;
+//    }
 
 }
