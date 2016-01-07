@@ -7,7 +7,7 @@
 	<packaging>war</packaging>
 	<name>envirocar-wps</name>
 	<properties>
-		<wps.version>3.3.0-SNAPSHOT</wps.version>
+		<wps.version>3.3.1-SNAPSHOT</wps.version>
 		<geotools.version>8.7</geotools.version>
 		<jackson.version>2.1.4</jackson.version>
 	</properties>
@@ -24,6 +24,28 @@
 			<id>opengeo</id>
 			<name>OpenGeo Maven Repository</name>
 			<url>http://repo.opengeo.org</url>
+		</repository>
+		<repository>
+			<id>n52-snapshots</id>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<name>repository for 52North snapshots</name>
+			<url>http://52north.org/maven/repo/snapshots/</url>
+		</repository>
+		<repository>
+			<id>n52-releases</id>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<name>repository for 52North releases</name>
+			<url>http://52north.org/maven/repo/releases/</url>
 		</repository>
 	</repositories>
 	<dependencies>
