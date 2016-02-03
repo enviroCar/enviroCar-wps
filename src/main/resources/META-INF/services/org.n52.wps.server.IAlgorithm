@@ -2,3 +2,4 @@ org.envirocar.wps.Stops4POIProcess
 org.envirocar.wps.Acceleration4TrackProcess
 org.envirocar.wps.DataTransformProcess
 org.envirocar.wps.GetFuelPriceProcess
+org.envirocar.wps.SimpleAlgo
