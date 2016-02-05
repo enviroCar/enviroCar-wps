@@ -339,6 +339,7 @@
 			<Generator name="GenericFileGenerator"
 				className="org.n52.wps.io.datahandler.generator.GenericFileGenerator"
 				active="true">
+				<Format mimetype="application/csv"  />
 				<Format mimetype="application/x-zipped-shp" encoding="base64" />
 				<Format mimetype="application/shp" encoding="base64" />
 				<Format mimetype="application/img" encoding="base64" />
