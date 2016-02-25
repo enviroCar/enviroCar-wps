@@ -28,22 +28,41 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.util.Collection;
+
+
 import com.google.common.collect.SetMultimap;
 
 import org.envirocar.wps.StatsForPOI;
+
 
 public class CsvFileWriter {
 	
 	//Delimiter used in CSV file
 	private static final String SEMICOLON_DELIMITER = ";";
 	private static final String NEW_LINE_SEPARATOR = "\n";
-	private static final String FILE_HEADER = "Day;Measurement;AmountOfTracks;AmountOfMeasurements";
-
+	private static final String FILE_HEADER = "Day;Measurement;AmountOfTracks;AvgSpeedInTotal";
+	private static Collection<Object> mean;
+	private static int meanTotal;
 	
 	public static File writeCsvFile(String fileName, SetMultimap<String, Object> finalStatistics) {
 		
-		 FileWriter fileWriter = null;
+		 mean = finalStatistics.values();
+		 int meanTotal = 0;
+		 int meanColSize = mean.size();
+		 if(meanColSize == 0){
+			 meanColSize = 1;
+		 }
 		 
+		 for (Object elem : mean) {
+			 String el = String.valueOf(elem);
+			 System.out.println(el);
+			 meanTotal = meanTotal + Integer.parseInt(el.trim());
+		    }
+		
+		 meanTotal= meanTotal/meanColSize;
+		
+		 FileWriter fileWriter = null;
 		 
 		 try{
 			 fileWriter = new FileWriter(fileName);
@@ -55,15 +74,15 @@ public class CsvFileWriter {
 				 fileWriter.append(SEMICOLON_DELIMITER);
 				 fileWriter.append(String.valueOf(finalStatistics.get((String) key)));
 				 fileWriter.append(SEMICOLON_DELIMITER);
+				 fileWriter.append(String.valueOf(finalStatistics.get((String) key).size()));
 				 fileWriter.append(SEMICOLON_DELIMITER);
 				 fileWriter.append(NEW_LINE_SEPARATOR);					    
 				}
 			 fileWriter.append(SEMICOLON_DELIMITER);
 			 fileWriter.append(SEMICOLON_DELIMITER);
-			 fileWriter.append(String.valueOf(StatsForPOI.numberOfTracks));
+			 fileWriter.append(String.valueOf(finalStatistics.values().size()));
 			 fileWriter.append(SEMICOLON_DELIMITER);
-			 fileWriter.append(String.valueOf(StatsForPOI.TotalAmountOfPoints));
-			 fileWriter.append(NEW_LINE_SEPARATOR);	
+			 fileWriter.append(String.valueOf(meanTotal));
 			 
 			 
 			 System.out.println("CSV file was created successfully !!!");
