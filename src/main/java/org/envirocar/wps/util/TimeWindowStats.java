@@ -21,33 +21,48 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA or
  * visit the Free Software Foundation web page, http://www.fsf.org.
  */
-package org.envirocar.wps.test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+package org.envirocar.wps.util;
 
-import java.io.IOException;
-import java.net.URL;
 
-import org.envirocar.wps.DataTransformProcess;
-import org.envirocar.wps.util.EnviroCarFeatureParser;
-import org.geotools.data.simple.SimpleFeatureCollection;
-import org.junit.Test;
+import java.util.List;
+import java.util.Map;
 
-public class EnviroCarFeatureParserTest {
+import com.google.common.collect.ArrayListMultimap;
 
-//	@Test
-	public void testCreateFeaturesFromJSON(){
-		try {
-			
-			
-			URL url = new URL("https://envirocar.org/api/stable/tracks/53433169e4b09d7b34fa824a");
-			SimpleFeatureCollection sft = new EnviroCarFeatureParser().createFeaturesFromJSON(url);
-			assertTrue(sft.size() == 449);
-		} catch (IOException e) {
-			fail(e.getMessage());
-		}
-		
-	}
+import java.util.HashMap;
+
+/**
+ * class represents statistics of eC measurements for a specific time window
+ * 
+ * @author julius
+ *
+ */
+public class TimeWindowStats{
 	
+//	List <String> parameterValues;
+//	//String parameterName;
+//	
+//	
+//	public TimeWindowStats(List<String> parameterValues){
+//	     this.parameterValues = parameterValues;
+//	     
+//	}
+//	
+//	public List<String> getparameterValues(){
+//        return this.parameterValues;
+//    }
+
+	
+	int parameterValues;
+	
+	public TimeWindowStats(int parameterValues){
+	     this.parameterValues = parameterValues;
+	     
+	}
+
+	
+	public String toString(){
+		return " " + parameterValues;
+	}	
 }

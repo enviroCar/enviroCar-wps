@@ -56,7 +56,7 @@ public class Stops4POIProcessTest {
 		
 	}
 
-	@Test
+//	@Test
 	public void test() {
 		try {
 			FeatureCollection result = new Stops4POIProcess().getStops4PointOfInterests(this.tlPoint, bufferSize, maxSpeed);

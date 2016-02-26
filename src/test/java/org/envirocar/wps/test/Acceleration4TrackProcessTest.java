@@ -37,7 +37,7 @@ import org.junit.Test;
  */
 public class Acceleration4TrackProcessTest {
 
-	@Test
+//	@Test
 	public void test() {
 		
 		Acceleration4TrackProcess process = new Acceleration4TrackProcess();
