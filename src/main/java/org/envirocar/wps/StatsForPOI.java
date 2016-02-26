@@ -108,7 +108,9 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
     private GenericFileData result;
     private double bufferSize;
     private Geometry pointOfInterest;
-    private Integer[] time;
+    private int timeWindowStart;
+    private int timeWindowEnd;
+    private String day;
     
    public static int numberOfTracks = 0;
    public static int amountOfPoints= 0;
@@ -119,9 +121,24 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
         return result;
     }
 
-    @LiteralDataInput(identifier = "bufferSize", abstrakt="Specify the size of the buffer that is used to identify stops around a traffic light.")
+    @LiteralDataInput(identifier = "bufferSize", abstrakt="Specify the size of the buffer that is used to identify speeds around POI.")
     public void setBufferSize(double bufferSize) {
         this.bufferSize = bufferSize;
+    }
+    
+    @LiteralDataInput(identifier = "day", abstrakt="Specify the day queried")
+    public void setDay(String day) {
+        this.day = day;
+    }
+    
+    @LiteralDataInput(identifier = "timeWindowStart", abstrakt="Specify the timewindow queried")
+    public void settimeWindowStart(int timeWindowStart) {
+        this.timeWindowStart = timeWindowStart;
+    }
+    
+    @LiteralDataInput(identifier = "timeWindowEnd", abstrakt="Specify the timewindow queried")
+    public void settimeWindowEnd(int timeWindowEnd) {
+        this.timeWindowEnd = timeWindowEnd;
     }
     
     
@@ -132,22 +149,24 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 	
     @Execute
 	public void simpleAlgorithm() throws Exception {
-       simpleAlgorithm(this.pointOfInterest,this.bufferSize);
+       simpleAlgorithm(this.pointOfInterest,this.bufferSize,this.day,this.timeWindowStart,this.timeWindowEnd);
 	}	
     
     /**
-     * computes stops at point 
+     * computes Statistics at POI
      * 
      * @param pointOfInterest
      * @param bufferSize
      * @param day
+     * @param timeWindowStart
+     * @param timeWindowEnd
      * @throws Exception
      */
 	
-	public void simpleAlgorithm(Geometry pointOfInterest, double bufferSize) throws Exception {
+	public void simpleAlgorithm(Geometry pointOfInterest, double bufferSize, String day,int timeWindowStart, int timeWindowEnd) throws Exception {
 		
 		Point inputPoint = (Point)pointOfInterest;
-		System.out.println("Computing amount of points ("+inputPoint.getX()+", "+inputPoint.getY()+") with buffer size "+bufferSize+" m.");
+		LOGGER.debug("Computing amount of points ("+inputPoint.getX()+", "+inputPoint.getY()+") with buffer size "+bufferSize+" m.");
 		LOGGER.debug("Computing amount of points ("+inputPoint.getX()+", "+inputPoint.getY()+") with buffer size "+bufferSize+" m.");
 		pointOfInterest.setSRID(EPSG_CODE_GPS);
     	
@@ -185,6 +204,14 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 		
 		SetMultimap<String, Object> finalStatistics = HashMultimap.create();
 		
+		//Setting date format
+		SimpleDateFormat dateFormatInput=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		//Setting date format to "EEEE" - output name of weekday 
+		SimpleDateFormat dateFormatOutput=new SimpleDateFormat("EEEE"); 
+		//Setting new date format for Time (HH - Hour) 
+		SimpleDateFormat timeFormatOutput=new SimpleDateFormat("HH");
+		
+		
 		//iterate over track IDs
 		for (Object o : map.keySet()) {
 			Object entry = map.get(o);
@@ -192,6 +219,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 				trackIDs = (ArrayList<?>) entry;
 				numberOfTracks = trackIDs.size();
 				String trackDate = "";
+				int trackTime = 0;
 				System.out.println("trackIDSize "+ numberOfTracks);
 				
 				
@@ -211,22 +239,15 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 					SimpleFeatureCollection trackFc = parser.createFeaturesFromJSON(trackUrl);
 					SimpleFeatureIterator featIter = trackFc.features();
 					
-					//parameterValues.clear();
 					try {
 						
 						//iterate over Measurements of track
 						while (featIter.hasNext()){
 
 							SimpleFeature feat = featIter.next();
-							int trackTime;
+							//int trackTime;
 							//check if attribute time exists
 							if (feat.getAttribute("Speed (km/h)")!=null){	
-								//Setting date format
-								SimpleDateFormat dateFormatInput=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-								//Setting date format to "EEEE" - output name of weekday 
-								SimpleDateFormat dateFormatOutput=new SimpleDateFormat("EEEE"); 
-								//Setting new date format for Time (HH - Hour) 
-								SimpleDateFormat timeFormatOutput=new SimpleDateFormat("HH");
 								//receive string time 
 								trackDate = ((String)feat.getAttribute("time"));
 								//Parse String to Date
@@ -236,27 +257,34 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 								//trackTime saves the Hour when track has been created (e.g. 15)
 								trackTime= Integer.parseInt(timeFormatOutput.format(dt1));	
 								//save trackDay and trackTime into Hashmap date
-								trackDate += "_"+ trackTime;
-								System.out.println("Day: "+ trackDate);
-															
-								//String speed = (String)feat.getAttribute("Speed (km/h)");
+								//trackDate += ","+ trackTime;
+																						
 								double speed = Double.parseDouble((String)feat.getAttribute("Speed (km/h)"));
 								amountOfPoints++;
-								// parameterValues.add(speed);
 								parameterValues = (int) (parameterValues + speed);
 								TotalAmountOfPoints++;
+								
 							} else{
 								amountOfPoints = 1;
 								break;
 							}
 	
 						}
-						System.out.println("berechnung: "+ parameterValues+ " "+ amountOfPoints+ " "+ (parameterValues)/amountOfPoints);
+						//When starting time is higher than ending time (e.g. from 19 to 6 oclock) then check if trackTime is not between 6 and 19
+						if(timeWindowStart > timeWindowEnd){
+							if(day.contains(trackDate) && !(trackTime > timeWindowEnd && trackTime <= timeWindowStart)){
+								parameterValues = (parameterValues)/amountOfPoints;
+								TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
+								finalStatistics.put(trackDate, tws1);
+							}
+						}else{
+							//When starting time is lower than ending time
+						if(day.contains(trackDate)&& trackTime >= timeWindowStart && trackTime <= timeWindowEnd){
 						parameterValues = (parameterValues)/amountOfPoints;
 						TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
 						finalStatistics.put(trackDate, tws1);
-						System.out.println(" "+ finalStatistics);
-			
+						}
+						}
 					} catch (Exception e){
 						LOGGER.debug("Error while extracting amount of points in buffer: "+e.getLocalizedMessage());
 						throw(e);
@@ -264,11 +292,9 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 					finally{
 						featIter.close();
 					}
-//					result = new GenericFileData (CsvFileWriter.writeCsvFile("erstecsv", finalStatistics),"application/csv");
-//					System.out.println("result" + result);	
 
 				}
-				result = new GenericFileData (CsvFileWriter.writeCsvFile("erstecsv", finalStatistics),"application/csv");		
+				result = new GenericFileData (CsvFileWriter.writeCsvFile("erstecsv", finalStatistics),"application/csv");
 			} else{
 				break;
 			}

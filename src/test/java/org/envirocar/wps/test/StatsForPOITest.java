@@ -39,21 +39,19 @@ public class StatsForPOITest {
 	
 	private Geometry p1;
 	private double bufferSize;
+	private String day = "Samstag";
+	private int timeWindowEnd = 12;
+	private int timeWindowStart = 6;
 	
 
 	@Test
-	public void test() throws ParseException {
-		
-		Geometry g = new WKTReader().read(new InputStreamReader(new ByteArrayInputStream("POINT(51.752703 7.317661)".getBytes())));
-			    
-		this.bufferSize = 8000.0;
-		this.p1 =  new GeometryFactory().createPoint(new Coordinate(51.752703,7.317661));
+	public void test() throws ParseException {			    
+		this.bufferSize = 100.0;
+		this.p1 =  new GeometryFactory().createPoint(new Coordinate(51.95581065461393,7.626421451568604));
 		//51.752703,7.317661 //Haltern
 		//51.212693,6.357593 //Dülken, funktioniert nicht
-		System.out.println(""+ p1 );
-		System.out.println(" g: "+ g);
 		try {
-			new StatsForPOI ().simpleAlgorithm(p1, bufferSize);
+			new StatsForPOI ().simpleAlgorithm(p1, bufferSize,day,timeWindowStart,timeWindowEnd);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
