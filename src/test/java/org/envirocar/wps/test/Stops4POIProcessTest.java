@@ -50,7 +50,7 @@ public class Stops4POIProcessTest {
 	@Before
 	public void setUp() throws Exception {
 		//TODO coordinates are exactly vice versa then if they're transformed within WPS!!!
-		this.tlPoint = new GeometryFactory().createPoint(new Coordinate(7.60162,51.96517));
+		this.tlPoint = new GeometryFactory().createPoint(new Coordinate(51.96517, 7.60162));
 		this.bufferSize=50;
 		this.maxSpeed=5;
 		
@@ -59,7 +59,7 @@ public class Stops4POIProcessTest {
 //	@Test
 	public void test() {
 		try {
-			FeatureCollection result = new Stops4POIProcess().getStops4PointOfInterest(this.tlPoint, bufferSize, maxSpeed);
+			FeatureCollection result = new Stops4POIProcess().getStops4PointOfInterests(this.tlPoint, bufferSize, maxSpeed);
 //			TODO outcommented due to different WPS configuration of order of coordinates
 //			assertEquals(result.size(),1);
 //			FeatureIterator featIter = result.features();
