@@ -35,7 +35,7 @@ import java.util.HashMap;
 /**
  * class represents statistics of eC measurements for a specific time window
  * 
- * @author julius
+ * @author Julius Wittkopp
  *
  */
 public class TimeWindowStats{

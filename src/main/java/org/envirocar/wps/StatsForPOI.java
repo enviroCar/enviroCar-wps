@@ -25,9 +25,11 @@ package org.envirocar.wps;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ import java.util.UUID;
 
 import java.util.Date;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.envirocar.wps.util.CsvFileWriter;
 import org.envirocar.wps.util.EnviroCarFeatureParser;
 import org.envirocar.wps.util.EnviroCarWpsConstants;
@@ -181,12 +184,12 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
     	double maxx = coords[2].y;
     	double miny = coords[0].x;
     	double maxy = coords[2].x;
-    	System.out.println(""+ minx + " "+ miny + " "+ maxx +" " +maxy);
+    	LOGGER.debug("BBox: "+ minx + " "+ miny + " "+ maxx +" " +maxy );
     	
     	//query tracks from EnviroCar server
     	String bboxQuery = "?bbox="+minx+","+miny+","+maxx+","+maxy;
 		String queryUrl = EnviroCarWpsConstants.ENV_SERVER_URL+"/tracks"+bboxQuery;
-		System.out.println(""+ queryUrl);
+		LOGGER.debug("" + queryUrl );
     	URL u = new URL(queryUrl);
         InputStream in = u.openStream();
 		ObjectMapper objMapper = new ObjectMapper();
@@ -220,7 +223,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 				numberOfTracks = trackIDs.size();
 				String trackDate = "";
 				int trackTime = 0;
-				System.out.println("trackIDSize "+ numberOfTracks);
+				LOGGER.debug("trackIDSize "+ numberOfTracks);
 				
 				
 				//for each track query the measurements  
@@ -231,10 +234,9 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 					int amountOfPoints = 0;
 					
 					String trackID = (String) ((LinkedHashMap)item).get("id");
-					System.out.println("Getting features for track with ID: " + trackID);
 					LOGGER.debug("Getting features for track with ID: " + trackID);
 					URL trackUrl = new URL(EnviroCarWpsConstants.ENV_SERVER_URL+"/tracks/"+trackID+"/measurements"+bboxQuery);
-					System.out.println(" "+ trackUrl);
+					LOGGER.info(" "+ trackUrl);
 					EnviroCarFeatureParser parser = new EnviroCarFeatureParser();
 					SimpleFeatureCollection trackFc = parser.createFeaturesFromJSON(trackUrl);
 					SimpleFeatureIterator featIter = trackFc.features();
@@ -256,35 +258,61 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 								trackDate=dateFormatOutput.format(dt1);
 								//trackTime saves the Hour when track has been created (e.g. 15)
 								trackTime= Integer.parseInt(timeFormatOutput.format(dt1));	
-								//save trackDay and trackTime into Hashmap date
-								//trackDate += ","+ trackTime;
-																						
+								//save trackDay and trackTime into Hashmap date	
 								double speed = Double.parseDouble((String)feat.getAttribute("Speed (km/h)"));
 								amountOfPoints++;
 								parameterValues = (int) (parameterValues + speed);
-								TotalAmountOfPoints++;
-								
+								TotalAmountOfPoints++;								
 							} else{
-								amountOfPoints = 1;
+								LOGGER.info("Ich war hier");
 								break;
 							}
 	
 						}
-						//When starting time is higher than ending time (e.g. from 19 to 6 oclock) then check if trackTime is not between 6 and 19
-						if(timeWindowStart > timeWindowEnd){
-							if(day.contains(trackDate) && !(trackTime > timeWindowEnd && trackTime <= timeWindowStart)){
+						if(day.contains(trackDate)){
+						
+						if(timeWindowStart == 0 && timeWindowEnd == 0){
+							
+							if(trackTime >= 6 && trackTime <=9){
+								trackDate += ",6-10Uhr";
+							}
+							else if(trackTime >= 10 && trackTime <=14){
+								trackDate += ",10-15Uhr";
+							}
+							else if(trackTime >= 15 && trackTime <=18){
+								trackDate += ",15-19Uhr";
+							}
+							else if(!(trackTime >= 19 && trackTime <=5)){
+								trackDate += ",19-6Uhr";
+							}
+							else{
+								System.out.println("false case");
+								break;	
+							}
 								parameterValues = (parameterValues)/amountOfPoints;
 								TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
 								finalStatistics.put(trackDate, tws1);
-							}
+							
 						}else{
-							//When starting time is lower than ending time
-						if(day.contains(trackDate)&& trackTime >= timeWindowStart && trackTime <= timeWindowEnd){
-						parameterValues = (parameterValues)/amountOfPoints;
-						TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
-						finalStatistics.put(trackDate, tws1);
+							
+							//When starting time is higher than ending time (e.g. from 19 to 6 oclock) then check if trackTime is not between 6 and 19
+							if(timeWindowStart > timeWindowEnd){
+								if(day.contains(trackDate) && !(trackTime > timeWindowEnd && trackTime <= timeWindowStart)){
+									parameterValues = (parameterValues)/amountOfPoints;
+									TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
+									finalStatistics.put(trackDate, tws1);
+								}
+							}else{
+								//When starting time is lower than ending time
+								if(day.contains(trackDate)&& trackTime >= timeWindowStart && trackTime <= timeWindowEnd){
+									parameterValues = (parameterValues)/amountOfPoints;
+									TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
+									finalStatistics.put(trackDate, tws1);
+								}
+							}						
 						}
-						}
+					}
+						
 					} catch (Exception e){
 						LOGGER.debug("Error while extracting amount of points in buffer: "+e.getLocalizedMessage());
 						throw(e);
@@ -294,6 +322,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 					}
 
 				}
+				LOGGER.info("FinalStatistics:"+ finalStatistics);
 				result = new GenericFileData (CsvFileWriter.writeCsvFile("erstecsv", finalStatistics),"application/csv");
 			} else{
 				break;
@@ -325,13 +354,11 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 		sfb.set("id", featID);
 		sfb.set("totalAmountOfPoints", amountOfPoints);
 		sfb.set("totalNumberOfTracks", numberOfTracks);
-		System.out.println("Number of Measurements: " + amountOfPoints + "; total number of tracks: "+ numberOfTracks);
 		LOGGER.debug("Number of points: " + amountOfPoints + "; total number of tracks: "+ numberOfTracks);
 		
 		//create feature collection that is returned
 		List<SimpleFeature> simpleFeatureList = new ArrayList<SimpleFeature>();
 		simpleFeatureList.add(sfb.buildFeature(featID));
-		System.out.println("funktioniert2 ");
 		
 	}
 

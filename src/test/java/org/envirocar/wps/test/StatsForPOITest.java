@@ -23,8 +23,6 @@
  */
 package org.envirocar.wps.test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
 
 import org.envirocar.wps.StatsForPOI;
 import org.junit.Test;
@@ -33,25 +31,22 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 
 public class StatsForPOITest {
 	
 	private Geometry p1;
 	private double bufferSize;
-	private String day = "Samstag";
-	private int timeWindowEnd = 12;
-	private int timeWindowStart = 6;
+	private String day = "Mittwoch";
+	private int timeWindowEnd = 15;
+	private int timeWindowStart = 12;
 	
 
 	@Test
 	public void test() throws ParseException {			    
-		this.bufferSize = 100.0;
+		this.bufferSize = 3000.0;
 		this.p1 =  new GeometryFactory().createPoint(new Coordinate(51.95581065461393,7.626421451568604));
-		//51.752703,7.317661 //Haltern
-		//51.212693,6.357593 //Dülken, funktioniert nicht
 		try {
-			new StatsForPOI ().simpleAlgorithm(p1, bufferSize,day,timeWindowStart,timeWindowEnd);
+			new StatsForPOI().simpleAlgorithm(p1, bufferSize,day,timeWindowStart,timeWindowEnd);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
