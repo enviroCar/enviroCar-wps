@@ -104,14 +104,14 @@ public class CsvFileWriter {
 			 
 			 LOGGER.info("CSV file was created successfully !!!");
 		 }catch (Exception e) {
-			 LOGGER.info("Error in CsvFileWriter !!!");
+			 LOGGER.error("Error in CsvFileWriter !!!");
 			 e.printStackTrace();
 		 } finally {
 			 try {
 				 fileWriter.flush();
 				 fileWriter.close();
 			 } catch (IOException e) {
-				 LOGGER.info("Error while flushing/closing fileWriter !!!");
+				 LOGGER.error("Error while flushing/closing fileWriter !!!");
 				 e.printStackTrace();
 			 }
 		 }

@@ -48,7 +48,6 @@ public class StatsForPOITest {
 		try {
 			new StatsForPOI().simpleAlgorithm(p1, bufferSize,day,timeWindowStart,timeWindowEnd);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

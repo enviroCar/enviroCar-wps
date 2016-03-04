@@ -184,12 +184,12 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
     	double maxx = coords[2].y;
     	double miny = coords[0].x;
     	double maxy = coords[2].x;
-    	LOGGER.debug("BBox: "+ minx + " "+ miny + " "+ maxx +" " +maxy );
+    	LOGGER.debug("BBox: {} {} {} {}", minx, miny, maxx, maxy);
     	
     	//query tracks from EnviroCar server
     	String bboxQuery = "?bbox="+minx+","+miny+","+maxx+","+maxy;
 		String queryUrl = EnviroCarWpsConstants.ENV_SERVER_URL+"/tracks"+bboxQuery;
-		LOGGER.debug("" + queryUrl );
+		LOGGER.debug(queryUrl);
     	URL u = new URL(queryUrl);
         InputStream in = u.openStream();
 		ObjectMapper objMapper = new ObjectMapper();
@@ -223,7 +223,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 				numberOfTracks = trackIDs.size();
 				String trackDate = "";
 				int trackTime = 0;
-				LOGGER.debug("trackIDSize "+ numberOfTracks);
+				LOGGER.debug("trackIDSize {}", numberOfTracks);
 				
 				
 				//for each track query the measurements  
