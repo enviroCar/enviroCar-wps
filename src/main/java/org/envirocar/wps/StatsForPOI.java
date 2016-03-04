@@ -249,7 +249,6 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 							SimpleFeature feat = featIter.next();
 							//int trackTime;
 							//check if attribute time exists
-							System.out.println(feat.getAttribute("Speed (km/h)"));
 							if (feat.getAttribute("Speed (km/h)")!=null){	
 								//receive string time 
 								trackDate = ((String)feat.getAttribute("time"));
