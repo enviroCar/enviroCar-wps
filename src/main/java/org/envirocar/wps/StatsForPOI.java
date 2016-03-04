@@ -249,6 +249,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 							SimpleFeature feat = featIter.next();
 							//int trackTime;
 							//check if attribute time exists
+							System.out.println(feat.getAttribute("Speed (km/h)"));
 							if (feat.getAttribute("Speed (km/h)")!=null){	
 								//receive string time 
 								trackDate = ((String)feat.getAttribute("time"));
@@ -263,15 +264,20 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 								amountOfPoints++;
 								parameterValues = (int) (parameterValues + speed);
 								TotalAmountOfPoints++;								
-							} else{
-								LOGGER.info("Ich war hier");
+							}else if(feat.getAttribute("Speed (km/h)")==null && parameterValues != 0){
+								LOGGER.info("A speedvalue equals null");
+								break;
+							}else{
+								LOGGER.info("No Speed values found!");
+								amountOfPoints=1;
 								break;
 							}
 	
 						}
+						
 						if(day.contains(trackDate)){
 						
-						if(timeWindowStart == 0 && timeWindowEnd == 0){
+						 if(timeWindowStart == 0 && timeWindowEnd == 0){
 							
 							if(trackTime >= 6 && trackTime <=9){
 								trackDate += ",6-10Uhr";
