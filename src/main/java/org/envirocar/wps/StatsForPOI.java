@@ -236,7 +236,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 					String trackID = (String) ((LinkedHashMap)item).get("id");
 					LOGGER.debug("Getting features for track with ID: " + trackID);
 					URL trackUrl = new URL(EnviroCarWpsConstants.ENV_SERVER_URL+"/tracks/"+trackID+"/measurements"+bboxQuery);
-					LOGGER.info(" "+ trackUrl);
+					LOGGER.info(trackUrl.toString());
 					EnviroCarFeatureParser parser = new EnviroCarFeatureParser();
 					SimpleFeatureCollection trackFc = parser.createFeaturesFromJSON(trackUrl);
 					SimpleFeatureIterator featIter = trackFc.features();
@@ -247,18 +247,20 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 						while (featIter.hasNext()){
 
 							SimpleFeature feat = featIter.next();
-							//int trackTime;
 							//check if attribute time exists
+							
+							//receive string time 
+							trackDate = ((String)feat.getAttribute("time"));
+							//Parse String to Date
+							Date dt1=dateFormatInput.parse(trackDate);
+							// Save name of weekday when track has been created (e.g. Monday) as String trackDay 
+							trackDate=dateFormatOutput.format(dt1);
+							
+							if(day.contains(trackDate)){
 							if (feat.getAttribute("Speed (km/h)")!=null){	
-								//receive string time 
-								trackDate = ((String)feat.getAttribute("time"));
-								//Parse String to Date
-								Date dt1=dateFormatInput.parse(trackDate);
-								// Save name of weekday when track has been created (e.g. Monday) as String trackDay 
-								trackDate=dateFormatOutput.format(dt1);
+								
 								//trackTime saves the Hour when track has been created (e.g. 15)
-								trackTime= Integer.parseInt(timeFormatOutput.format(dt1));	
-								//save trackDay and trackTime into Hashmap date	
+								trackTime= Integer.parseInt(timeFormatOutput.format(dt1));						
 								double speed = Double.parseDouble((String)feat.getAttribute("Speed (km/h)"));
 								amountOfPoints++;
 								parameterValues = (int) (parameterValues + speed);
@@ -272,6 +274,11 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 								break;
 							}
 	
+						}else{
+							LOGGER.info("No correct date!");
+							break;
+						}
+							
 						}
 						
 						if(day.contains(trackDate)){
@@ -291,7 +298,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 								trackDate += ",19-6Uhr";
 							}
 							else{
-								System.out.println("false case");
+								LOGGER.info("Some Error Occured");
 								break;	
 							}
 								parameterValues = (parameterValues)/amountOfPoints;
@@ -303,6 +310,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 							//When starting time is higher than ending time (e.g. from 19 to 6 oclock) then check if trackTime is not between 6 and 19
 							if(timeWindowStart > timeWindowEnd){
 								if(day.contains(trackDate) && !(trackTime > timeWindowEnd && trackTime <= timeWindowStart)){
+									LOGGER.info("When starting time is HIGHER than ending time");
 									parameterValues = (parameterValues)/amountOfPoints;
 									TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
 									finalStatistics.put(trackDate, tws1);
@@ -310,14 +318,14 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 							}else{
 								//When starting time is lower than ending time
 								if(day.contains(trackDate)&& trackTime >= timeWindowStart && trackTime <= timeWindowEnd){
+									LOGGER.info("When starting time is lower than ending time");
 									parameterValues = (parameterValues)/amountOfPoints;
 									TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
 									finalStatistics.put(trackDate, tws1);
 								}
 							}						
 						}
-					}
-						
+					}						
 					} catch (Exception e){
 						LOGGER.debug("Error while extracting amount of points in buffer: "+e.getLocalizedMessage());
 						throw(e);

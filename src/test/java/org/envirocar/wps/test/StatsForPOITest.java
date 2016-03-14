@@ -36,9 +36,9 @@ public class StatsForPOITest {
 	
 	private Geometry p1;
 	private double bufferSize;
-	private String day = "Mittwoch";
-	private int timeWindowEnd = 15;
-	private int timeWindowStart = 12;
+	private String day = "Mittwoch,Donnerstag,Freitag";
+	private int timeWindowEnd = 0;
+	private int timeWindowStart = 0;
 	
 
 	@Test
