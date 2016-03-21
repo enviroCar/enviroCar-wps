@@ -50,7 +50,7 @@ public class CsvFileWriter {
 	//Delimiter used in CSV file
 	private static final String SEMICOLON_DELIMITER = ";";
 	private static final String NEW_LINE_SEPARATOR = "\n";
-	private static final String FILE_HEADER = "Day;DayAverage;AmountOfTracks;AvgSpeedInTotal";
+	private static final String FILE_HEADER = "Tag;Tagesmittel;Fahrten;Gesamtmittel";
 	private static Collection<Object> mean;
 	private static Logger LOGGER = LoggerFactory.getLogger(CsvFileWriter.class);
 	
