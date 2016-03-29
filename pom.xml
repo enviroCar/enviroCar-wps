@@ -9,7 +9,7 @@
 	<properties>
 		<wps.version>3.3.2-SNAPSHOT</wps.version>
 		<geotools.version>8.7</geotools.version>
-		<jackson.version>2.1.4</jackson.version>
+		<jackson.version>2.3.3</jackson.version>
 	</properties>
 	<repositories>
 		<repository>

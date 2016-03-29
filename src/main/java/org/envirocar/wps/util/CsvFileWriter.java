@@ -71,10 +71,9 @@ public class CsvFileWriter {
 		
 		 meanTotal= meanTotal/meanColSize;
 		
-		 FileWriter fileWriter = null;
 		 
-		 try{
-			 fileWriter = new FileWriter(fileName);
+		 try(FileWriter fileWriter = new FileWriter(fileName)){
+			 LOGGER.debug("FileName: '"+fileName +"'");
 			 
 			 fileWriter.append(FILE_HEADER.toString()); 
 			 fileWriter.append(NEW_LINE_SEPARATOR);			 				 
@@ -101,20 +100,12 @@ public class CsvFileWriter {
 			 fileWriter.append(SEMICOLON_DELIMITER);
 			 fileWriter.append(String.valueOf(meanTotal));
 			 
-			 
+			 fileWriter.flush();
 			 LOGGER.info("CSV file was created successfully !!!");
 		 }catch (Exception e) {
-			 LOGGER.error("Error in CsvFileWriter !!!");
-			 e.printStackTrace();
-		 } finally {
-			 try {
-				 fileWriter.flush();
-				 fileWriter.close();
-			 } catch (IOException e) {
-				 LOGGER.error("Error while flushing/closing fileWriter !!!");
-				 e.printStackTrace();
-			 }
-		 }
+			 LOGGER.error("Error in CsvFileWriter !!! Exception: " + e.getMessage());
+			 LOGGER.debug("Exception",e);
+		 } 
 		
 		return new File(fileName);
 	}
