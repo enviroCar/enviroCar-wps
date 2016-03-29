@@ -223,7 +223,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 				numberOfTracks = trackIDs.size();
 				String trackDate = "";
 				int trackTime = 0;
-				LOGGER.debug("trackIDSize {}", numberOfTracks);
+				LOGGER.info("NumberOfTracksInBBox: '{}'", numberOfTracks);
 				
 				
 				//for each track query the measurements  
@@ -255,7 +255,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 							Date dt1=dateFormatInput.parse(trackDate);
 							// Save name of weekday when track has been created (e.g. Monday) as String trackDay 
 							trackDate=dateFormatOutput.format(dt1);
-							
+							LOGGER.info("Tag des Tracks: '{}'", trackDate);
 							if(day.contains(trackDate)){
 							if (feat.getAttribute("Speed (km/h)")!=null){	
 								
