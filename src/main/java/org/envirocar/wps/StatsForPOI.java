@@ -336,7 +336,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 
 				}
 				LOGGER.info("FinalStatistics:"+ finalStatistics);
-				result = new GenericFileData (CsvFileWriter.writeCsvFile("erstecsv", finalStatistics),"application/csv");
+				result = new GenericFileData (CsvFileWriter.writeCsvFile("", finalStatistics),"application/csv");
 			} else{
 				break;
 			}

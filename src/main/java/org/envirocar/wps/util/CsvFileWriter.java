@@ -54,7 +54,7 @@ public class CsvFileWriter {
 	private static Collection<Object> mean;
 	private static Logger LOGGER = LoggerFactory.getLogger(CsvFileWriter.class);
 	
-	public static File writeCsvFile(String fileName, SetMultimap<String, Object> finalStatistics) {
+	public static File writeCsvFile(String fileName, SetMultimap<String, Object> finalStatistics) throws IOException {
 		
 		 int dayMean = 0;
 		 mean = finalStatistics.values();
@@ -71,8 +71,10 @@ public class CsvFileWriter {
 		
 		 meanTotal= meanTotal/meanColSize;
 		
-		 
-		 try(FileWriter fileWriter = new FileWriter(fileName)){
+		 File csvFile;
+
+		 csvFile = File.createTempFile("Stats4POI-"+fileName, ".tmp");
+		 try(FileWriter fileWriter = new FileWriter(csvFile.getAbsolutePath())){
 			 LOGGER.debug("FileName: '"+fileName +"'");
 			 
 			 fileWriter.append(FILE_HEADER.toString()); 
@@ -101,12 +103,9 @@ public class CsvFileWriter {
 			 fileWriter.append(String.valueOf(meanTotal));
 			 
 			 fileWriter.flush();
-			 LOGGER.info("CSV file was created successfully !!!");
-		 }catch (Exception e) {
-			 LOGGER.error("Error in CsvFileWriter !!! Exception: " + e.getMessage());
-			 LOGGER.debug("Exception",e);
-		 } 
+			 LOGGER.info("CSV file in: '" + csvFile.getAbsolutePath()+"'");
+		 }  
 		
-		return new File(fileName);
+		return csvFile;
 	}
 }
