@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -189,7 +190,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
     	//query tracks from EnviroCar server
     	String bboxQuery = "?bbox="+minx+","+miny+","+maxx+","+maxy;
 		String queryUrl = EnviroCarWpsConstants.ENV_SERVER_URL+"/tracks"+bboxQuery;
-		LOGGER.debug(queryUrl);
+		LOGGER.info(queryUrl);
     	URL u = new URL(queryUrl);
         InputStream in = u.openStream();
 		ObjectMapper objMapper = new ObjectMapper();
@@ -210,7 +211,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 		//Setting date format
 		SimpleDateFormat dateFormatInput=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		//Setting date format to "EEEE" - output name of weekday 
-		SimpleDateFormat dateFormatOutput=new SimpleDateFormat("EEEE"); 
+		SimpleDateFormat dateFormatOutput=new SimpleDateFormat("EEEE", Locale.GERMAN); 
 		//Setting new date format for Time (HH - Hour) 
 		SimpleDateFormat timeFormatOutput=new SimpleDateFormat("HH");
 		
@@ -222,8 +223,9 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 				trackIDs = (ArrayList<?>) entry;
 				numberOfTracks = trackIDs.size();
 				String trackDate = "";
+				String trackDay = "";
 				int trackTime = 0;
-				LOGGER.info("NumberOfTracksInBBox: '{}'", numberOfTracks);
+				LOGGER.info("Number Of Tracks In BBox: '{}'", numberOfTracks);
 				
 				
 				//for each track query the measurements  
@@ -236,7 +238,7 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 					String trackID = (String) ((LinkedHashMap)item).get("id");
 					LOGGER.debug("Getting features for track with ID: " + trackID);
 					URL trackUrl = new URL(EnviroCarWpsConstants.ENV_SERVER_URL+"/tracks/"+trackID+"/measurements"+bboxQuery);
-					LOGGER.info(trackUrl.toString());
+					LOGGER.debug(trackUrl.toString());
 					EnviroCarFeatureParser parser = new EnviroCarFeatureParser();
 					SimpleFeatureCollection trackFc = parser.createFeaturesFromJSON(trackUrl);
 					SimpleFeatureIterator featIter = trackFc.features();
@@ -254,9 +256,9 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 							//Parse String to Date
 							Date dt1=dateFormatInput.parse(trackDate);
 							// Save name of weekday when track has been created (e.g. Monday) as String trackDay 
-							trackDate=dateFormatOutput.format(dt1);
-							LOGGER.info("Tag des Tracks: '{}'", trackDate);
-							if(day.contains(trackDate)){
+							trackDay=dateFormatOutput.format(dt1);
+							LOGGER.debug("Tag des Tracks: '{}'", trackDay);
+							if(day.contains(trackDay)){
 							if (feat.getAttribute("Speed (km/h)")!=null){	
 								
 								//trackTime saves the Hour when track has been created (e.g. 15)
@@ -266,62 +268,62 @@ public class StatsForPOI extends AbstractAnnotatedAlgorithm {
 								parameterValues = (int) (parameterValues + speed);
 								TotalAmountOfPoints++;								
 							}else if(feat.getAttribute("Speed (km/h)")==null && parameterValues != 0){
-								LOGGER.info("A speedvalue equals null");
+								LOGGER.debug("A speedvalue equals null");
 								break;
 							}else{
-								LOGGER.info("No Speed values found!");
+								LOGGER.debug("No Speed values found!");
 								amountOfPoints=1;
 								break;
 							}
 	
 						}else{
-							LOGGER.info("No correct date!");
+							LOGGER.debug("Not a  correct date!'{}'", trackDay);
 							break;
 						}
 							
 						}
 						
-						if(day.contains(trackDate)){
+						if(day.contains(trackDay)){
 						
 						 if(timeWindowStart == 0 && timeWindowEnd == 0){
 							
 							if(trackTime >= 6 && trackTime <=9){
-								trackDate += ",6-10Uhr";
+								trackDay += ",6-10Uhr";
 							}
 							else if(trackTime >= 10 && trackTime <=14){
-								trackDate += ",10-15Uhr";
+								trackDay += ",10-15Uhr";
 							}
 							else if(trackTime >= 15 && trackTime <=18){
-								trackDate += ",15-19Uhr";
+								trackDay += ",15-19Uhr";
 							}
 							else if(!(trackTime >= 19 && trackTime <=5)){
-								trackDate += ",19-6Uhr";
+								trackDay += ",19-6Uhr";
 							}
 							else{
-								LOGGER.info("Some Error Occured");
+								LOGGER.error("Some Error Occured '{}'", trackDay);
 								break;	
 							}
 								parameterValues = (parameterValues)/amountOfPoints;
 								TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
-								finalStatistics.put(trackDate, tws1);
+								finalStatistics.put(trackDay, tws1);
 							
 						}else{
 							
 							//When starting time is higher than ending time (e.g. from 19 to 6 oclock) then check if trackTime is not between 6 and 19
 							if(timeWindowStart > timeWindowEnd){
-								if(day.contains(trackDate) && !(trackTime > timeWindowEnd && trackTime <= timeWindowStart)){
-									LOGGER.info("When starting time is HIGHER than ending time");
+								if(day.contains(trackDay) && !(trackTime > timeWindowEnd && trackTime <= timeWindowStart)){
+									LOGGER.debug("When starting time is HIGHER than ending time");
 									parameterValues = (parameterValues)/amountOfPoints;
 									TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
-									finalStatistics.put(trackDate, tws1);
+									finalStatistics.put(trackDay, tws1);
 								}
 							}else{
 								//When starting time is lower than ending time
-								if(day.contains(trackDate)&& trackTime >= timeWindowStart && trackTime <= timeWindowEnd){
-									LOGGER.info("When starting time is lower than ending time");
+								if(day.contains(trackDay)&& trackTime >= timeWindowStart && trackTime <= timeWindowEnd){
+									LOGGER.debug("When starting time is lower than ending time");
 									parameterValues = (parameterValues)/amountOfPoints;
 									TimeWindowStats tws1 = new TimeWindowStats(parameterValues);
-									finalStatistics.put(trackDate, tws1);
+									finalStatistics.put(trackDay, tws1);
 								}
 							}						
 						}
