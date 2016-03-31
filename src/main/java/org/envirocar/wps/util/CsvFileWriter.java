@@ -54,7 +54,7 @@ public class CsvFileWriter {
 	private static Collection<Object> mean;
 	private static Logger LOGGER = LoggerFactory.getLogger(CsvFileWriter.class);
 	
-	public static File writeCsvFile(String fileName, SetMultimap<String, Object> finalStatistics) {
+	public static File writeCsvFile(String fileName, SetMultimap<String, Object> finalStatistics) throws IOException {
 		
 		 int dayMean = 0;
 		 mean = finalStatistics.values();
@@ -71,10 +71,11 @@ public class CsvFileWriter {
 		
 		 meanTotal= meanTotal/meanColSize;
 		
-		 FileWriter fileWriter = null;
-		 
-		 try{
-			 fileWriter = new FileWriter(fileName);
+		 File csvFile;
+
+		 csvFile = File.createTempFile("Stats4POI-"+fileName, ".tmp");
+		 try(FileWriter fileWriter = new FileWriter(csvFile.getAbsolutePath())){
+			 LOGGER.debug("FileName: '"+fileName +"'");
 			 
 			 fileWriter.append(FILE_HEADER.toString()); 
 			 fileWriter.append(NEW_LINE_SEPARATOR);			 				 
@@ -101,21 +102,10 @@ public class CsvFileWriter {
 			 fileWriter.append(SEMICOLON_DELIMITER);
 			 fileWriter.append(String.valueOf(meanTotal));
 			 
-			 
-			 LOGGER.info("CSV file was created successfully !!!");
-		 }catch (Exception e) {
-			 LOGGER.error("Error in CsvFileWriter !!!");
-			 e.printStackTrace();
-		 } finally {
-			 try {
-				 fileWriter.flush();
-				 fileWriter.close();
-			 } catch (IOException e) {
-				 LOGGER.error("Error while flushing/closing fileWriter !!!");
-				 e.printStackTrace();
-			 }
-		 }
+			 fileWriter.flush();
+			 LOGGER.info("CSV file in: '" + csvFile.getAbsolutePath()+"'");
+		 }  
 		
-		return new File(fileName);
+		return csvFile;
 	}
 }
